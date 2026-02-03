@@ -1,0 +1,17 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Data (too large for GitHub)
+data/raw/
+data/contexts/
+data/processed/
+
+# Models & outputs
+models/
+results/
+
+# OS / Editor
+.DS_Store
+.vscode/
