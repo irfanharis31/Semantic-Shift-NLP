@@ -1,3 +1,5 @@
+![Build Paper](https://github.com/irfanharis31/Semantic-Shift-NLP/actions/workflows/build-paper.yml/badge.svg)
+
 # Semantic Shift NLP
 
 A reproducible research framework for detecting **diachronic lexical semantic change** in English news corpora using **contextualized transformer-based language models**.
@@ -40,4 +42,5 @@ This framework provides a reproducible and extensible pipeline for:
 ---
 
 ## Repository Structure
+
 
