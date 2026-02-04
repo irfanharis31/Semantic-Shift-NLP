@@ -1,0 +1,4 @@
+paper/* linguist-vendored
+*.tex linguist-vendored
+*.bib linguist-vendored
+*.sty linguist-vendored
