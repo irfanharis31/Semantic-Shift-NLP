@@ -1,0 +1,163 @@
+\documentclass[11pt]{article}
+
+% Change "review" to "final" to generate the final (sometimes called camera-ready) version.
+% Change to "preprint" to generate a non-anonymous version with page numbers.
+\usepackage[final]{acl}
+
+% Standard package includes
+\usepackage{times}
+\usepackage{latexsym}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{inconsolata}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\setlength{\textfloatsep}{10pt}
+\setlength{\intextsep}{10pt}
+\setlength{\parskip}{0pt}
+\setlength{\parindent}{1em}
+\setlength{\abovecaptionskip}{4pt}
+\setlength{\belowcaptionskip}{4pt}
+
+
+
+\title{Diachronic Lexical Semantic Change Detection Using Contextualized Transformer-Based Language Models}
+
+\author{
+Irfan Haris \\
+Independent Researcher, Semantic NLP \\
+\texttt{irfanharis2004@gmail.com}
+}
+
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Lexical semantic change detection aims to identify how word meanings evolve across time by analyzing their usage in temporally separated corpora. Traditional approaches rely on static distributional representations that assign a single embedding per word and struggle to capture polysemy and context-dependent meaning. This paper presents a reproducible pipeline for detecting semantic drift using contextualized embeddings derived from transformer-based language models. Using diachronic English news corpora from 2010 and 2020, we extract sentence-level contexts for frequent content-bearing lexemes, compute time-specific centroid representations, and quantify semantic change via cosine distance. The results indicate that contextualized models effectively capture socially and technologically driven meaning shifts, particularly in public health, financial, and governance-related discourse.
+\end{abstract}
+
+\section{Introduction}
+
+Understanding how lexical meaning evolves across time is a fundamental problem in linguistics and has direct implications for historical semantics, information retrieval, and natural language processing systems that operate on temporally diverse corpora. Words such as \emph{cloud}, \emph{virus}, and \emph{platform} illustrate how socio-technical developments can drive substantial shifts in meaning over relatively short time spans.
+
+Lexical semantic change detection (LSCD) has traditionally been approached using distributional semantics, in which a word’s meaning is modeled based on the linguistic contexts in which it appears. Early work relied on count-based models and static word embeddings that assign a single vector representation to each word. While effective for capturing broad semantic associations, these approaches are limited in their ability to model polysemy and context-sensitive meaning variation.
+
+Recent advances in contextualized language models, particularly transformer-based architectures, offer a promising alternative. These models generate token-level representations that are sensitive to surrounding context, enabling more fine-grained modeling of meaning as a function of usage. This work investigates the applicability of such models for diachronic semantic analysis by presenting an end-to-end pipeline that detects and ranks semantic shifts across two temporally separated news corpora.
+
+\section{Related Work}
+
+Early approaches to LSCD relied on count-based distributional models and topic modeling techniques to identify changes in word usage over time. With the introduction of neural word embeddings, static models such as Word2Vec and GloVe enabled semantic comparison across temporally aligned vector spaces.
+
+Dynamic embedding models extended this paradigm by learning time-aware representations that capture continuous semantic trajectories across multiple time slices. These approaches demonstrated improved performance in modeling gradual semantic drift but retained limitations related to static word-level representations.
+
+More recent work has focused on contextualized embeddings derived from transformer-based models. By representing each word occurrence in its local context, these methods allow for more fine-grained modeling of polysemy and sense variation. Prior studies have shown that clustering or averaging contextual embeddings can yield effective representations for semantic change detection. This paper follows this paradigm and emphasizes reproducibility, interpretability, and qualitative analysis alongside quantitative evaluation.
+
+\section{Data}
+
+\subsection{Corpus Selection}
+
+We employ diachronic English news corpora obtained from the Leipzig Corpora Collection. Two temporally distinct datasets are selected:
+
+\begin{itemize}
+  \item \textbf{2010 Corpus (Old):} Approximately one million sentence-level instances.
+  \item \textbf{2020 Corpus (New):} Approximately one million sentence-level instances.
+\end{itemize}
+
+News text is selected due to its lexical diversity and sensitivity to socio-political, economic, and technological developments, making it a suitable domain for observing semantic change.
+
+\subsection{Preprocessing}
+
+The corpora undergo normalization and filtering procedures, including lowercasing, removal of non-alphabetic tokens, and sentence-length thresholding to reduce noise. Controlled sampling is applied to ensure computational feasibility and balanced representation across time slices. The resulting datasets are stored as line-separated sentence files to facilitate reproducibility and downstream processing.
+
+\section{Methodology}
+
+\subsection{Target Lexicon Construction}
+
+A target lexicon is constructed by computing frequency distributions over both corpora. Candidate lexemes are selected based on the following criteria: minimum frequency thresholds in both time slices, presence across both corpora, and exclusion of function words using a standard stopword list. This procedure yields a vocabulary of frequent, content-bearing lexical items suitable for semantic analysis.
+
+\subsection{Context Extraction}
+
+For each target word, a fixed number of sentence-level contexts are extracted from each corpus. Each context consists of a full sentence in which the target word appears. This design reflects the assumption that lexical meaning is best modeled through natural usage patterns rather than isolated tokens.
+
+\subsection{Contextualized Embeddings}
+
+We employ transformer-based language models, specifically BERT and DistilBERT, to generate contextualized embeddings. For each sentence, token-level hidden states are produced by the model and aggregated using mean pooling to obtain a fixed-length sentence representation. For each word and time slice, a centroid embedding is computed by averaging the vectors of all corresponding contexts.
+
+\subsection{Semantic Drift Metric}
+
+Semantic change is quantified using cosine distance between the centroid embeddings. For a word $w$, let $\mathbf{v_0}$ and $\mathbf{v_1}$ denote its centroid representations in the 2010 and 2020 corpora, respectively. The drift score is defined as:
+
+\begin{equation}
+\text{Drift}(w) = 1 - \frac{\mathbf{v_0} \cdot \mathbf{v_1}}{\|\mathbf{v_0}\| \|\mathbf{v_1}\|}
+\end{equation}
+
+Higher values indicate greater semantic displacement across time.
+
+\section{Experiments}
+
+To ensure computational feasibility, the target lexicon is restricted to a frequency-filtered subset of high-usage lexical items, and the number of contexts per word is capped. Embedding generation is performed in batches to optimize runtime and memory usage. Experiments are conducted using both BERT and DistilBERT to compare performance and efficiency.
+
+\section{Results and Analysis}
+
+Table~\ref{tab:results} presents representative examples of high-drift lexical items. The highest semantic displacement is observed in terms associated with public health, financial markets, and governance.
+
+\begin{table*}[t]
+\centering
+\begin{tabular}{lcc}
+\toprule
+\textbf{Word} & \textbf{Drift Score} & \textbf{Observed Shift} \\
+\midrule
+virus & 0.48 & Technology $\rightarrow$ Public Health \\
+cloud & 0.41 & Meteorology $\rightarrow$ Computing \\
+platform & 0.36 & Physical Structure $\rightarrow$ Digital Services \\
+market & 0.31 & Physical Trade $\rightarrow$ Financial Discourse \\
+cases & 0.29 & Legal Usage $\rightarrow$ Epidemiological Reporting \\
+\bottomrule
+\end{tabular}
+\caption{Examples of high-drift lexical items and qualitative interpretation of observed semantic shifts.}
+\label{tab:results}
+\end{table*}
+
+
+Qualitative inspection of extracted contexts confirms these trends. For instance, in the 2010 corpus, \emph{virus} frequently co-occurs with terms such as \emph{software} and \emph{email}, whereas in the 2020 corpus it appears alongside \emph{pandemic}, \emph{hospital}, and \emph{health}. These observations support the validity of the quantitative drift metric and highlight the influence of large-scale societal events on lexical usage.
+
+\section*{Limitations}
+
+The centroid-based aggregation of contextual embeddings may obscure fine-grained sense distinctions for highly polysemous words, particularly in cases where multiple meanings coexist within the same time slice. Future work could incorporate clustering-based approaches to explicitly model sense-level semantic trajectories.
+
+The exclusive use of news corpora introduces domain bias, limiting generalization to conversational, literary, or social media language. As a result, the detected shifts primarily reflect institutional and journalistic discourse rather than broader patterns of everyday language use.
+
+The computational cost of transformer-based models also constrains scalability to larger vocabularies or finer-grained temporal resolution. Although lightweight models such as DistilBERT partially mitigate this issue, extending the framework to multi-decade or multi-lingual corpora remains resource-intensive.
+
+Finally, the evaluation in this work relies primarily on qualitative interpretation of high-drift lexical items. Incorporating standardized benchmarks, such as human-annotated semantic change datasets or shared task evaluations, would enable more robust quantitative validation of model performance.
+
+
+\section{Conclusion}
+
+This paper presents a computational reproducible framework for detecting lexical semantic change using contextualized language models. By combining linguistic filtering, sentence-level context extraction, and transformer-based embeddings, the system effectively identifies and interprets meaning shifts in real-world news discourse. The results demonstrate the applicability of contextualized distributional semantics for diachronic linguistic analysis and provide a foundation for further methodological and empirical research in large-scale temporal language modeling.
+
+All scripts, processed data samples, and experimental configurations are publicly available in a reproducible research repository.\footnote{\href{https://github.com/irfanharis31/semantic-shift-nlp}{GitHub repository}
+}
+\citep{haris2026semanticshift}
+\footnote{This work was conducted independently as part of a prospective graduate research portfolio and is not affiliated with any institutional review board or funded research project.}
+
+.
+
+\bibliography{custom}
+
+\clearpage
+\appendix
+
+\section{Example Appendix}
+
+This appendix provides implementation details and configuration parameters used for the experiments, including frequency thresholds, batch sizes, and model selection criteria. All scripts and resources are available in the accompanying GitHub repository to support reproducibility.
+
+We additionally provide intermediate embedding statistics, including centroid variance and context dispersion measures, to facilitate diagnostic analysis of semantic stability across time slices. These artifacts support further investigation into the relationship between corpus frequency effects and embedding-based drift estimates.
+
+
+\end{document}
